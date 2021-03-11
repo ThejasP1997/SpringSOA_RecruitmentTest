@@ -1,0 +1,95 @@
+<!--Parent Lightning Compomemt-->
+<aura:component  controller="addDeleteController" Implements="flexipage:availableForRecordHome,force:hasRecordId,force:appHostable,flexipage:availableForAllPageTypes" access="global">
+    <!--Init handler which is call doInit js function on component Load-->  
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}"/>
+    
+    <!--Event handler for Add and Delete Row Event which is fire from Child Component-->    
+    <aura:handler name="DeleteRowEvt" event="c:DeleteRowEvt" action="{!c.removeDeletedRow}"/>
+    <aura:handler name="AddRowEvt" event="c:AddNewRowEvt" action="{!c.addNewRow}"/>
+    
+    <!--Aura Attribute for store Skills Object List as Array-->    
+    <aura:attribute name="skillsList" type="Skills__c[]"/> 
+    
+    <!--Aura Attribute for storing Employee Details-->
+    <aura:attribute name="newEmployee" type="Object"/>
+    <aura:attribute name="simpleNewEmployee" type="Object"/>
+    <aura:attribute name="newEmployeeError" type="String"/>
+    <aura:attribute name="objInfo" type="Employee_Details__c" default="{'sobjectType' : 'Employee_Details__c'}" />
+    
+   
+    
+    <!--Employee details Corner-->
+    <force:recordData aura:id="employeeRecordCreator" 
+                      layoutType="FULL"
+                      targetRecord="{!v.newEmployee}"
+                      targetFields="{!v.simpleNewEmployee}"
+                      targetError="{!v.newEmployeeError}" />
+    
+    <!--Header Part-->        
+    <div class="slds-page-header">
+        <div class="slds-page-header__title"  iconName="action:new_contact">Employee Corner
+        </div>
+    </div>
+    
+    <!-- Display the new employee form -->
+    <div class="Create Employee">
+        <lightning:card  title="Create Employee" iconName="action:new_contact">
+            <div class="slds-p-horizontal--medium">
+                <lightning:input aura:id="employeeField" label="Employee Full Name:" value="{!v.simpleNewEmployee.Name}" required="true"/>
+                <lightning:input aura:id="employeeField" label="Phone Number:" value="{!v.simpleNewEmployee.Phone__c}"/>
+                <lightning:input aura:id="employeeField" label="Address:" value="{!v.simpleNewEmployee.Address__c}"/>
+                <label class="slds-form-element__label" for="select-01">Select Qualification:</label>
+                <div class="slds-select_container">
+                    <ui:inputSelect  aura:id="accIndustry" class="slds-select"  change="{!c.onPicklistChange}" value="{!v.simpleNewEmployee.Qualification__c}"/>
+                </div>
+                <br/>
+            </div>
+            
+        </lightning:card>
+    </div>
+    
+    <!--Skills Corner-->
+    <div class="slds_page-header">
+        <lightning:card iconName="standard:lightning_component" title="Skill Corner">
+            
+            <!--Table Part-->           
+            <table class="slds-table slds-table_bordered slds-table_cell-buffer"> 
+                <thead>
+                    <tr class="slds-text-title_caps">
+                        <th scope="col">
+                            <div class="slds-truncate">S.No</div>
+                        </th>
+                        <th scope="col">
+                            <div class="slds-truncate" title="Skill Name">Skill Name</div>
+                        </th>
+                    </tr>
+                </thead>   
+                <tbody>
+                    <!--Iterate the child Component for display Table rows 
+               with pass the List Item Index for track the Every child Component 
+               and pass each List Contact Instance -->         
+                    <aura:iteration items="{!v.skillsList}" var="item" indexVar="index">
+                        <c:EmployeeFront SkillsInstance="{!item}" rowIndex="{!index}" />
+                                        </aura:iteration>
+                </tbody>
+            </table>
+            <br/>
+            <button class="slds-button slds-button_brand slds-align_absolute-center" onclick="{!c.Save}">Save</button>
+        </lightning:card>
+        <!--Save Button which is call Save js function on click --> 
+        
+    </div>
+    
+  
+   <!--Skills Lookup-->
+    
+<div class="slds-hide" aura:id="spinner">
+        <lightning:spinner variant="brand" size="medium"  alternativeText="wait"/>
+    </div>
+    
+    <!-- Display Lightning Data Service errors -->
+    <aura:if isTrue="{!not(empty(v.newEmployeeError))}">
+        <div class="recordError">
+            {!v.newEmployeeError}</div>
+    </aura:if>
+</aura:component>
